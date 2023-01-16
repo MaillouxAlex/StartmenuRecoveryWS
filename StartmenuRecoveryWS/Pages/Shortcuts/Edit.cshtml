@@ -1,0 +1,82 @@
+﻿@page
+@model StartmenuRecoveryWS.Pages.Shortcuts.EditModel
+
+<h4>Shortcut</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Shortcut.Id" />
+            <div class="form-group">
+                <label asp-for="Shortcut.LnkName" class="control-label"></label>
+                <input asp-for="Shortcut.LnkName" class="form-control" />
+                <span asp-validation-for="Shortcut.LnkName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shortcut.LnkPath" class="control-label"></label>
+                <input asp-for="Shortcut.LnkPath" class="form-control" />
+                <span asp-validation-for="Shortcut.LnkPath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shortcut.AppPath" class="control-label"></label>
+                <input asp-for="Shortcut.AppPath" class="form-control" />
+                <span asp-validation-for="Shortcut.AppPath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shortcut.AppArgs" class="control-label"></label>
+                <input asp-for="Shortcut.AppArgs" class="form-control" />
+                <span asp-validation-for="Shortcut.AppArgs" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shortcut.Status" class="control-label"></label>
+                <input asp-for="Shortcut.Status" id="Status_Input" class="form-control" />
+                <span asp-validation-for="Shortcut.Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shortcut.ApprovedTimestamp" class="control-label"></label>
+                <input asp-for="Shortcut.ApprovedTimestamp" id="ApprouvedTimestamp_Input"class="form-control" />
+                <span asp-validation-for="Shortcut.ApprovedTimestamp" class="text-danger"></span>
+            </div>
+            <div class="form-group" style="display:none;">
+                <label asp-for="Shortcut.Hit" class="control-label"></label>
+                <input asp-for="Shortcut.Hit" class="form-control"/>
+                <span asp-validation-for="Shortcut.Hit" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Shortcut.Approved" id="Approved_Checkbox" /> @Html.DisplayNameFor(model => model.Shortcut.Approved)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script type="text/javascript">
+        $("#Approved_Checkbox").on("click", function () {
+            console.log('addend1:', $('#Status_Input').val());
+            console.log('addend1:', $("input:checked").val());
+
+            if ($("input:checked").val() == "true")
+            {
+                $('#Status_Input').val("Approved");
+                $('#ApprouvedTimestamp_Input').val(moment(Date.now()).format("YYYY-MM-DDTHH:mm"));
+            }
+            else
+            {
+                $('#Status_Input').val("Unapproved");
+                $('#ApprouvedTimestamp_Input').val("");
+            }
+        });
+    </script>
+}
