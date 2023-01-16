@@ -45,7 +45,7 @@
 
 ### Database
 * Créer la base de données
-    * Collation: SQL_Latin1_CI_AS
+    * Collation: SQL_Latin1_General_CP1_CI_AS
     * Ajouter appPool de iis en data Read/Write
     * Run  <path IIS>\StartMenuRecoveryWS\EFSQLScripts\StartmenuRecoveryWS.Data.ApplicationDbContext.sql
     * Modifier "appsettings.json"  section ConnectionStrings
