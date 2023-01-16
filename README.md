@@ -26,7 +26,7 @@
 *	Vous pouvez l’exécuter manuellement avec des droits d’administrateur : "C:\Windows\_Cegep\Lnk Creator 1.0 FR\Deploy-Application.exe"
 *	Vous pouvez l’exécuter manuellement en appelant la tâche planifiée avec des droits d’administrateur via Powershell :  Start-ScheduledTask -TaskName "LnkCreator"
 *	Vous pouvez exécuter le script SCCM\MECM suivant sur des ordinateurs ciblés dans la console : Run Lnk Creator LocalInstance
-*	Vous pouvez l’installer manuellement s’il n’est pas encore propagé par SCCM\MECM (attention, nécessite des droits pour accéder au répertoire, le faire sécuritairement) : "\\si-mdt01\gestion\Lnk Creator 1.0 FR\Package\Lnk Creator 1.0 FR\Deploy-Application.exe"
+*	Vous pouvez l’installer manuellement s’il n’est pas encore propagé par SCCM\MECM (attention, nécessite des droits pour accéder au répertoire, le faire sécuritairement) : ".\Lnk Creator 1.0 FR\Package\Lnk Creator 1.0 FR\Deploy-Application.exe"
 *	Journal dressant la liste des raccourcis créés par l’outil : "C:\Windows\_Cegep\Lnk Creator 1.0 FR\LnkCreator.log"
 *	Emplacement des journaux d’exécution : "C:\Windows\Logs\Software\CégepdeChicoutimi_LnkCreatorLocalInstance_1.0_x64_EN_01_PSAppDeployToolkit_Install.log"
 *	Emplacement du package de gestion : ".\gestion\Lnk Creator 1.0 FR\Package\Lnk Creator 1.0 FR"
