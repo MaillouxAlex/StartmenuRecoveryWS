@@ -5,7 +5,8 @@
 *	Accueille les données amassées grâce à Lnk Collector
 *	Base de données questionnée par Lnk Creator
 *	Console de gestion Web disponible.
-*	Seulement les raccourcis autoriés via la console web seront propagés.
+*	Seulement les raccourcis autoriés avec une date d'approbation via la console web seront propagés.
+*	Le champs Status sert seuelement à aider à faire des trie et des recherches dans l'interface web.
 
 ### Lnk Collector 1.0 FR (Powershell)
 *	Outil de collecte des informations sur les raccourcis toujours existants dans notre parc
