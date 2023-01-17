@@ -1,5 +1,7 @@
 
 # Start Menu Recovery 
+![image](https://user-images.githubusercontent.com/122805975/212919943-1fb2bc25-75c0-43c0-8a9e-e330eb723c51.png)
+
 
 ### Start Menu Recovery Web Service (API et Console web)
 *	Accueille les données amassées grâce à Lnk Collector
