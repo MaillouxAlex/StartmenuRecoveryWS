@@ -50,7 +50,9 @@ Param (
 	[Parameter(Mandatory=$false)]
 	[switch]$TerminalServerMode = $false,
 	[Parameter(Mandatory=$false)]
-	[switch]$DisableLogging = $false
+	[switch]$DisableLogging = $false,
+	[Parameter(Mandatory=$false)]
+	[string]$Url = "", #ex: http://servername.com/api/Sorcuts
 )
 
 Try {
@@ -125,12 +127,6 @@ Try {
 		[string]$installPhase = 'Installation'
 
 		## <Perform Installation tasks here>
-
-
-
-        #SQL Server URL
-        $Url = "http://smrws.cegep-chicoutimi.qc.ca/api/shortcuts"
-
         #Log file for SCCM detection method. This detection method will be use to make sure the Lnk Collector run once.
         $JSONLogFile = "$env:SYSTEMROOT\_Cegep\Lnk Collector 1.0 FR\Lnk Collector.json"
         if (!(Test-Path -Path $JSONLogFile)) {

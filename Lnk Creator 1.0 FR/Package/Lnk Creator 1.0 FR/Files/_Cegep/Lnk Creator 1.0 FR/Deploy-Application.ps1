@@ -50,9 +50,35 @@ Param (
 	[Parameter(Mandatory=$false)]
 	[switch]$TerminalServerMode = $false,
 	[Parameter(Mandatory=$false)]
-	[switch]$DisableLogging = $false
+	[switch]$DisableLogging = $false,
+	[Parameter(Mandatory=$false)]
+	[string]$URI = "", #ex: http://servername.com/api/Sorcuts
+	[Parameter(Mandatory=$false)]
+	[string]$RestoreURI = "" #ex: http://servername.com/api/SorcutRestored
+	
 )
+function APIRestored(){
+	Param (
+		[string] $LnkNameRestored,
+		[string] $LnkPathRestored
+	)
+	$ObjectProperties = @{
+		LnkName = $LnkNameRestored
+		LnkPath = $LnkPathRestored
+	}
 
+	$JSON = ConvertTo-Json -InputObject $(New-Object PSObject -Property $ObjectProperties)
+	
+	try {
+		Invoke-RestMethod -Uri $restoreURI -Method 'Post' -Body $JSON -ContentType "application/json; charset=utf-8"
+	}
+	catch {
+		$streamReader = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
+		$ErrResp = $streamReader.ReadToEnd()
+		$streamReader.Close()
+		$ErrResp
+	}
+}
 Try {
 	## Set the script execution policy for this process
 	Try { Set-ExecutionPolicy -ExecutionPolicy 'ByPass' -Scope 'Process' -Force -ErrorAction 'Stop' } Catch {}
@@ -61,7 +87,7 @@ Try {
 	##* VARIABLE DECLARATION
 	##*===============================================
 	## Variables: Application
-	[string]$appVendor = 'Cégep de Chicoutimi'
+	[string]$appVendor = 'Cegep de Chicoutimi'
 	[string]$appName = 'Lnk Creator LocalInstance'
 	[string]$appVersion = '1.0'
 	[string]$appArch = 'x64'
@@ -104,6 +130,7 @@ Try {
 		If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = $mainExitCode; Exit } Else { Exit $mainExitCode }
 	}
 
+	
 	#endregion
 	##* Do not modify section above
 	##*===============================================
@@ -127,7 +154,6 @@ Try {
 		## <Perform Installation tasks here>
 
         #SQL Server URL
-        $Url = "http://smrws.cegep-chicoutimi.qc.ca/api/shortcuts"
 
         #Local log file to list all created shortcuts since LNK Creator exists
         $CreatorLogFile = "$env:SYSTEMROOT\_Cegep\Lnk Creator 1.0 FR\LnkCreator.log"
@@ -184,6 +210,7 @@ Try {
 				                    }
                                     $data = $date + ";" + $shortcutPath
                                     Add-Content -Path $CreatorLogFile -Value $data
+									APIRestored -LnkNameRestored $LnkName -LnkPathRestored $LnkPath
                                 }
 			                }
                         }
@@ -204,7 +231,8 @@ Try {
 				                }
                                 $data = $date + ";" + $shortcutPath
                                 Add-Content -Path $CreatorLogFile -Value $data
-                            }
+								APIRestored -LnkNameRestored $LnkName -LnkPathRestored $LnkPath
+                            } 
 			            }
 
                     }

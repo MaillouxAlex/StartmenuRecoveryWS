@@ -11,14 +11,14 @@ namespace StartmenuRecoveryWS.Data
             Approved = false;
             Status = "New";
             Hit = 1;
-
+            Restored = 0;
         }
-        public int Id { get; set; }
+       
+        [Display(Name = "Source")] public int Id { get; set; }
         [Display(Name = "Nom")]
         public string LnkName { get; set; }
         [Display(Name = "Path")]
         public string LnkPath { get; set; }
-        [Display(Name = "Source")]
         public string AppPath { get; set; }
         [Display(Name = "Argument")]
         public string? AppArgs { get; set; }
@@ -27,6 +27,7 @@ namespace StartmenuRecoveryWS.Data
         [Display(Name = "Approved Date")]
         public DateTime? ApprovedTimestamp { get; set; }
         public int Hit { get; set; }
+        public int Restored { get; set; }
         [NotMapped]
         [Display(Name = "Path")]
         public string LnkPath_Decoded

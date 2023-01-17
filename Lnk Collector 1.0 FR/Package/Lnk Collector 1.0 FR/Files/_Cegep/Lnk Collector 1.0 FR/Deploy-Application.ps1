@@ -50,9 +50,35 @@ Param (
 	[Parameter(Mandatory=$false)]
 	[switch]$TerminalServerMode = $false,
 	[Parameter(Mandatory=$false)]
-	[switch]$DisableLogging = $false
+	[switch]$DisableLogging = $false,
+	[Parameter(Mandatory=$false)]
+	[string] $Url = "" #ex: http://servername.com/api/shortcuts
 )
+function APIRestored(){
+	Param (
+		[string] $LnkNameRestored,
+		[string] $LnkPathRestored
+	)
+	$ObjectProperties = @{
+		LnkName = $LnkNameRestored
+		LnkPath = $LnkPathRestored
+	}
 
+	$JSON = ConvertTo-Json -InputObject $(New-Object PSObject -Property $ObjectProperties)
+
+	$restoreURI = "http://smrws.cegep-chicoutimi.qc.ca/api/SorcutRestored"
+	#$restoreURI = "http://localhost:5167/api/SorcutRestored"
+
+	try {
+		Invoke-RestMethod -Uri $restoreURI -Method 'Post' -Body $JSON -ContentType "application/json; charset=utf-8"
+	}
+	catch {
+		$streamReader = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
+		$ErrResp = $streamReader.ReadToEnd()
+		$streamReader.Close()
+		$ErrResp
+	}
+}
 Try {
 	## Set the script execution policy for this process
 	Try { Set-ExecutionPolicy -ExecutionPolicy 'ByPass' -Scope 'Process' -Force -ErrorAction 'Stop' } Catch {}
@@ -61,15 +87,15 @@ Try {
 	##* VARIABLE DECLARATION
 	##*===============================================
 	## Variables: Application
-	[string]$appVendor = ''
-	[string]$appName = ''
-	[string]$appVersion = ''
-	[string]$appArch = ''
+	[string]$appVendor = 'Cegep de Chicoutimi'
+	[string]$appName = 'Lnk Creator LocalInstance'
+	[string]$appVersion = '1.0'
+	[string]$appArch = 'x64'
 	[string]$appLang = 'EN'
 	[string]$appRevision = '01'
 	[string]$appScriptVersion = '1.0.0'
-	[string]$appScriptDate = 'XX/XX/20XX'
-	[string]$appScriptAuthor = '<author name>'
+	[string]$appScriptDate = '14/01/2023'
+	[string]$appScriptAuthor = 'RAGA HULA ALMA'
 	##*===============================================
 	## Variables: Install Titles (Only set here to override defaults set by the toolkit)
 	[string]$installName = ''
@@ -104,6 +130,7 @@ Try {
 		If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = $mainExitCode; Exit } Else { Exit $mainExitCode }
 	}
 
+	
 	#endregion
 	##* Do not modify section above
 	##*===============================================
@@ -117,16 +144,106 @@ Try {
 		[string]$installPhase = 'Pre-Installation'
 
 		## <Perform Pre-Installation tasks here>
-		Show-InstallationWelcome -CloseApps 'TEMPLATE' -CheckDiskSpace -PersistPrompt -ForceCloseAppsCountdown 300 -BlockExecution -AllowDeferCloseApps -DeferTimes 1
 
 
 		##*===============================================
 		##* INSTALLATION
 		##*===============================================
 		[string]$installPhase = 'Installation'
+
 		## <Perform Installation tasks here>
-		#Execute-Process -Path "$dirfiles\TEMPLATE.exe" -Parameters "/S" -WindowStyle 'Hidden'
-		#Execute-MSI -Action Install -Path "$dirfiles\TEMPLATE.msi" -Parameters "/quiet /qn /norestart"
+
+        #SQL Server URL
+        $Url = "http://smrws.cegep-chicoutimi.qc.ca/api/shortcuts"
+		#$Url = "http://localhost:5167/api/shortcuts"
+
+        #Local log file to list all created shortcuts since LNK Creator exists
+        $CreatorLogFile = "$env:SYSTEMROOT\_Cegep\Lnk Creator 1.0 FR\LnkCreator.log"
+        if (!(Test-Path -Path $CreatorLogFile)) {
+            New-Item -ItemType File -Path $CreatorLogFile -Force
+        }
+
+        $date = Get-Date -Format "yyyy-mm-dd HH:mm:ss"
+
+
+        #JSON Get Method to get all approved shortcuts from remote SQL database
+        try {
+            $LnkList = Invoke-RestMethod -Uri $Url -Method 'Get' #-ContentType "application/json"
+        }
+        catch {
+            $streamReader = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
+            $ErrResp = $streamReader.ReadToEnd()
+            $streamReader.Close()
+            $ErrResp
+            $LnkList = ""
+        }
+
+
+        if ($LnkList) {
+
+            #Get All users profile paths except for the Public one
+            $UsersProfilePaths = Get-ChildItem "C:\Users\*" | Where-Object {$_.Name -notmatch "Public"}
+
+            Foreach ($shortcut in $LnkList)
+            {
+	            $LnkPath = $shortcut.LnkPath
+	            $AppPath = $shortcut.AppPath
+	            $AppArgs = $shortcut.AppArgs
+	            $LnkName = $shortcut.LnkName
+
+
+                switch -Regex ($LnkPath)
+                {
+                    '^\$EACHUSERPROFILE\$' 
+                    {
+
+                        ForEach($folder in $UsersProfilePaths) 
+                        {
+                            $ConvertedLnkPath = $LnkPath -replace ('^\$EACHUSERPROFILE\$',$folder)
+                            $shortcutPath = $ConvertedLnkPath+$LnkName
+
+                            if(!(Test-Path -Path $shortcutPath)){
+                                if (Test-Path -Path $AppPath) {
+				                    if ($shortcut.AppArgs){
+					                    New-Shortcut -path $shortcutPath -TargetPath $AppPath -Arguments $AppArgs -description $LnkName
+				                    }
+				                    else {
+					                    New-Shortcut -path $shortcutPath -TargetPath $AppPath -description $LnkName
+				                    }
+                                    $data = $date + ";" + $shortcutPath
+                                    Add-Content -Path $CreatorLogFile -Value $data
+									APIRestored -LnkNameRestored $LnkName -LnkPathRestored $LnkPath
+                                }
+			                }
+                        }
+
+                    }
+                    Default 
+                    {
+
+                        $shortcutPath = $LnkPath+$LnkName
+                        if(!(Test-Path -Path $shortcutPath)){
+                            if (Test-Path -Path $AppPath) {
+				                if ($shortcut.AppArgs){
+					                New-Shortcut -path $shortcutPath -TargetPath $AppPath -Arguments $AppArgs -description $LnkName
+				                }
+				                else {
+					                New-Shortcut -path $shortcutPath -TargetPath $AppPath -description $LnkName
+                                
+				                }
+                                $data = $date + ";" + $shortcutPath
+                                Add-Content -Path $CreatorLogFile -Value $data
+								APIRestored -LnkNameRestored $LnkName -LnkPathRestored $LnkPath
+                            } 
+			            }
+
+                    }
+
+                } #End of Switch
+
+            } #End of ForEach
+
+        } #End of If
 
 
 		##*===============================================
@@ -137,8 +254,7 @@ Try {
 		## <Perform Post-Installation tasks here>
 
 		## Copy configuration file to every users
-        	#$Destination = 'C:\Users\*\AppData\Roaming\'
-        	#Get-ChildItem $Destination -force | ForEach-Object {Copy-Item -Path "$dirSupportFiles\TEMPLATE\" -Destination $_ -Force -Recurse}
+
 	}
 	ElseIf ($deploymentType -ieq 'Uninstall')
 	{
@@ -148,7 +264,7 @@ Try {
 		[string]$installPhase = 'Pre-Uninstallation'
 
 		## <Perform Pre-Uninstallation tasks here>
-		Show-InstallationWelcome -CloseApps 'TEMPLATE' -PersistPrompt -ForceCloseAppsCountdown 300 -BlockExecution -AllowDeferCloseApps -DeferTimes 1
+
 
 		##*===============================================
 		##* UNINSTALLATION
@@ -156,8 +272,6 @@ Try {
 		[string]$installPhase = 'Uninstallation'
 
 		## <Perform Uninstallation tasks here>
-        	#Execute-Process -Path	"$envProgramFiles\TEMPLATE\uninstall.exe" -Parameters '/S' -WindowStyle 'Hidden'
-		#Execute-MSI -Action 'Uninstall' -Path '{TEMPLATE}'
 
 
 		##*===============================================

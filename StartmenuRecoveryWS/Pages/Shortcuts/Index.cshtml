@@ -30,6 +30,9 @@
                 @Html.DisplayNameFor(model => model.Shortcut[0].Hit)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Shortcut[0].Restored)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Shortcut[0].Status)
             </th>
             <th></th>
@@ -43,7 +46,7 @@
                     @Html.DisplayFor(modelItem => item.LnkName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.LnkPath_Decoded)
+                    @Html.DisplayFor(modelItem => item.LnkPath)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.AppPath)
@@ -56,6 +59,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Hit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Restored)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Status)
