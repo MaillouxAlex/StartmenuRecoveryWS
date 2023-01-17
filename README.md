@@ -41,7 +41,14 @@
 
 ### Publication
 * Créer un site web dans IIS.
-* À l'aide de visualstudio publier l'application vers le réperoire.  
+* À l'aide de visualstudio publier l'application vers le réperoire.
+
+### Modification des scripts avant le déploiement de ceux-ci
+* modifier .\Lnk Creator 1.0 FR\Files\_Cegep\Lnk Creator 1.0 FR\Deploy-Application.ps1
+   * line 55 $URI = http://servername.com/api/Sorcuts
+   * line 57 $RestoredURI = http://servername.com/api/SorcutRestored
+* Lnk Collector 1.0 FR\Files\_Cegep\Lnk Collector 1.0 FR\Deploy-Application.ps1
+   * line 55 $Url = "http://servername.com/api/Sorcuts"
 
 ### Database
 * Créer la base de données
